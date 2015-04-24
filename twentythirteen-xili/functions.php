@@ -17,9 +17,10 @@
 // 1.2.2 - 2014-07-24 - ready for XL 2.15+
 // 1.2.3 - 2014-08-24 - ready for XL 2.15.1+
 // 1.2.4 - 2014-11-30 - ready for XL 2.15.3+
+// 1.5 - 2015-04-24 - parent 2013 v1.5 - XL 2.17+ - WP 4.2
 
 
-define( 'TWENTYTHIRTEEN_XILI_VER', '1.2.1'); // as parent style.css
+define( 'TWENTYTHIRTEEN_XILI_VER', '1.5'); // as parent style.css
 
 // main initialisation functions
 
@@ -151,8 +152,7 @@ function twentythirteen_xilidev_setup () {
 		add_action( 'admin_notices', $c = create_function( '', 'echo "' . addcslashes( $msg, '"' ) . '";' ) );
 
 	// end errors...
-	// new filter added at end - 2014-01-08
-	remove_filter( 'wp_title', 'twentythirteen_wp_title', 10, 2 );
+	;
 }
 add_action( 'after_setup_theme', 'twentythirteen_xilidev_setup', 11 ); // after parent functions
 
@@ -336,58 +336,13 @@ function special_head() {
 	}
 	$xili_theme_options = get_theme_xili_options() ;
 
-	if ( !isset( $xili_theme_options['no_flags'] ) || $xili_theme_options['no_flags'] != '1' ) {
-		//twentythirteen_flags_style(); // insert dynamic css - obsolete with xl 2.15
-	}
 }
 if ( class_exists('xili_language') )	// if temporary disabled
 	add_action( 'wp_head', 'special_head', 11);
 
 /**
- * dynamic style for flag depending current list and option no_flags
- *
- * @since 1.0.2
- *
- * obsolete with xl 2.15 and custom flags from media library
- *
+ * overhide default twentythirteen_entry_meta
  */
-function twentythirteen_flags_style () {
-
-	if ( class_exists('xili_language') ) {
-		global $xili_language ;
-		$language_xili_settings = get_option('xili_language_settings');
-		if ( !is_array( $language_xili_settings['langs_ids_array'] ) ) {
-			$xili_language->get_lang_slug_ids(); // update array when no lang_perma 110830 thanks to Pierre
-			update_option( 'xili_language_settings', $xili_language->xili_settings );
-			$language_xili_settings = get_option('xili_language_settings');
-		}
-
-		$language_slugs_list = array_keys ( $language_xili_settings['langs_ids_array'] ) ;
-
-		?>
-		<style type="text/css">
-		<?php
-
-		$path = get_stylesheet_directory_uri();
-
-		$ulmenus = array();
-		foreach ( $language_slugs_list as $slug ) {
-			echo "ul.nav-menu li.menu-separator { margin:0; }\n";
-			echo "ul.nav-menu li.lang-{$slug} a { background: transparent url('{$path}/images/flags/{$slug}.png') no-repeat center 16px; margin:0;}\n";
-			echo "ul.nav-menu li.lang-{$slug}:hover {background: #AD9065}\n"; // find menu bk
-			echo "ul.nav-menu li.lang-{$slug} a:hover {background: transparent url('{$path}/images/flags/{$slug}.png') no-repeat center 17px !important;}\n";
-			//$ulmenus[] = "ul.nav-menu li.lang-{$slug} a";
-		}
-			//echo implode (', ', $ulmenus ) . " {text-indent:-9999px; width:24px; }\n";
-			echo 'ul.nav-menu li[class*="lang-"] a {text-indent:-9999px; width:24px; }' ."\n";
-		?>
-		</style>
-		<?php
-
-	}
-}
-
-// overhide default
 function twentythirteen_entry_meta() {
 	if ( is_sticky() && is_home() && ! is_paged() )
 		echo '<span class="featured-post">' . __( 'Sticky', 'twentythirteen' ) . '</span>';
@@ -462,22 +417,6 @@ function xiliml_new_list() {
 
 }
 
-//add_action( 'xl_propagate_post_attributes', 'my_propagate_post_content' , 11, 2); // 11 because after built filters
-
-function my_propagate_post_content ( $from_post_ID, $post_ID ) {
-
-		$from_post = get_post( $from_post_ID, ARRAY_A);
-		$to_post = array ( 'ID' => $post_ID );
-
-		// here the column(s) that you want to copy
-
-		$to_post['post_content'] = $from_post['post_content'];
-
-		// $to_post['post_excerpt'] = $from_post['post_excerpt'];
-
-		wp_update_post( $to_post ) ;
-}
-
 /**
  * add search other languages in form - see functions.php when fired
  *
@@ -504,7 +443,8 @@ function is_xili_adjacent_filterable() {
 }
 
 /**
- * filters when propagate post columns - example
+ * filters when propagate post columns - example with insertion of prefix line -
+ * @see propagate_post_columns in xili-language.php
  *
  */
 function my_xiliml_propagate_post_columns($from_post_column, $key, $from_lang_slug, $to_lang_slug ) {
@@ -532,44 +472,6 @@ function twentythirteen_xili_credits () {
 }
 
 add_action ('twentythirteen_credits','twentythirteen_xili_credits');
-
-
-
-/**
- * Filter the page title - to fixe issue of parent. 2014-01-08
- *
- * Creates a nicely formatted and more specific title element text for output
- * in head of document, based on current view.
- *
- * @since 1.1.3
- *
- * @param string $title Default title text for current view.
- * @param string $sep	Optional separator.
- * @return string The filtered title.
- */
-function twentythirteen_xili_wp_title( $title, $sep ) {
-	global $paged, $page;
-
-	if ( is_feed() )
-		return $title;
-
-	// Add the site name.
-	$title .= get_bloginfo( 'name', 'display' ); // add display param for translation
-
-	// Add the site description for the home/front page.
-	$site_description = get_bloginfo( 'description', 'display' );
-	if ( $site_description && ( is_home() || is_front_page() ) )
-		$title = "$title $sep $site_description";
-
-	// Add a page number if necessary.
-	if ( $paged >= 2 || $page >= 2 )
-		$title = "$title $sep " . sprintf( __( 'Page %s', 'twentythirteen' ), max( $paged, $page ) );
-
-	return $title;
-}
-// original removed in after theme setup 2014-01-08
-add_filter( 'wp_title', 'twentythirteen_xili_wp_title', 10, 2 );
-
 
 
 ?>

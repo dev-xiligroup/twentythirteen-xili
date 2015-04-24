@@ -2,7 +2,7 @@
 /**
  * The template for displaying Category pages.
  *
- * @link http://codex.wordpress.org/Template_Hierarchy
+ * @link https://codex.wordpress.org/Template_Hierarchy
  *
  * @package WordPress
  * @subpackage Twenty_Thirteen
@@ -19,7 +19,7 @@ get_header(); ?>
 				<h1 class="archive-title"><?php printf( __( 'Category Archives: %s', 'twentythirteen' ), single_cat_title( '', false ) ); ?></h1>
 
 				<?php // if ( category_description() ) : // Show an optional category description ?>
-				<?php // translation
+				<?php // translation xili
 			$category_description = trim( strip_tags( category_description() ) );
 			if ( ! empty( $category_description ) )
 				echo '<div class="archive-meta"><p>' . translate( $category_description, 'twentythirteen' ) . '</p></div>';
