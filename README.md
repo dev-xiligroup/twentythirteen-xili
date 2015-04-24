@@ -18,4 +18,5 @@ The twentythirteen-xili (v. 1.5) is visible at http://2013.extend.xiligroup.org
 1. Before updating, don’t forget to backup your own `.mo` language files
 
 2015-04-24 - clean code, sources and WP 4.2 tests
+
 2015-03-01 - new folder for theme only
